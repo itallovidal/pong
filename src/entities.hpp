@@ -94,6 +94,8 @@ class Ball
     float accel;
     float velocity;
     struct ShapeBounds shapeBounds;
+    int XDirection = 1;
+    int YDirection = 1;
 
 public:
     Ball(sf::Color color, float size)
@@ -133,7 +135,6 @@ public:
     {
         float displacement;
 
-        // todo: what if velocity is -310?
         if (this->velocity < BALL_MAX_SPEED)
         {
             // uniformly accelerated rectilinear moviment
@@ -148,13 +149,11 @@ public:
             std::cout << "max velocity reached" << "\n";
             std::cout << this->velocity << "\n";
 
-            // we limit hour velocity to 300
-            this->velocity = 300.f;
             // if we reach max speed, we will maintain our displacement constant
             displacement = this->velocity * deltatime;
         }
 
-        this->shape.move({displacement, 0});
+        this->shape.move({displacement * XDirection, displacement * YDirection});
         this->updateBounds(); // updating where the ball is
     }
 
@@ -163,15 +162,27 @@ public:
         return this->shape;
     }
 
-    void invertDirection()
+    void invertDirection(BallDirection direction)
     {
-        this->velocity *= -1;
-        this->accel *= -1;
+        if (direction == BallDirection::X)
+        {
+            this->XDirection *= -1;
+        }
+
+        if (direction == BallDirection::Y)
+        {
+            this->YDirection *= -1;
+        }
     }
 
     void handleCollision(WindowUtilityInfo *windowInfo, Player *player1, Player *player2)
     {
         float ballPositionX = this->shape.getPosition().x;
+
+        if (this->getShapeBounds()->maxY >= windowInfo->fullWindowY || this->getShapeBounds()->minY <= 0)
+        {
+            this->invertDirection(BallDirection::Y);
+        }
 
         if (ballPositionX >= windowInfo->fullWindowX)
         {
@@ -190,14 +201,14 @@ public:
             this->getShapeBounds()->maxY >= player2->getShapeBounds()->minY &&
             this->getShapeBounds()->minY <= player2->getShapeBounds()->maxY)
         {
-            this->invertDirection();
+            this->invertDirection(BallDirection::X);
         }
 
         if (this->getShapeBounds()->minX <= player1->getShapeBounds()->maxX &&
             this->getShapeBounds()->maxY >= player1->getShapeBounds()->minY &&
             this->getShapeBounds()->minY <= player1->getShapeBounds()->maxY)
         {
-            this->invertDirection();
+            this->invertDirection(BallDirection::X);
         }
     }
 };

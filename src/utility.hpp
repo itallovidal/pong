@@ -5,8 +5,14 @@
 
 #define WINDOW_PADDING 12.f
 #define BALL_DEFAULT_VELOCITY 100.f
-#define BALL_DEFAULT_ACCELERATION 200.f
-#define BALL_MAX_SPEED 300.f
+#define BALL_DEFAULT_ACCELERATION 50.f
+#define BALL_MAX_SPEED 1400.f
+
+enum BallDirection
+{
+    X,
+    Y
+};
 
 struct ShapeBounds
 {
