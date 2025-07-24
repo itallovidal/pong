@@ -73,6 +73,7 @@ public:
 
     void handleMoviment(PlayerMoviment moveTo)
     {
+        // how can i apply smooth transition? exponential smoothing?
         sf::Vector2f currentPosition = this->shape.getPosition();
         if (moveTo == PlayerMoviment::UP)
         {
@@ -138,10 +139,10 @@ public:
         if (this->velocity < BALL_MAX_SPEED)
         {
             // uniformly accelerated rectilinear moviment
-            // velocity * delta * time + 1/2 * acceleration * deltatime²
+            // velocity * deltatime + 1/2 * acceleration * deltatime²
             displacement = this->velocity * deltatime + (.5f * this->accel * pow(deltatime, 2));
 
-            // update velocity to increase velocity in next frame
+            // update velocity to increase it in next frame
             this->velocity += this->accel * deltatime;
         }
         else
