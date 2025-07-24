@@ -1,10 +1,13 @@
 #include "utility.hpp"
 #include "entities.hpp"
 
-sf::Text scoreBoard(sf::Font font, struct WindowUtilityInfo *window, struct Score score)
+sf::Text scoreBoardBuilder(sf::Font font, struct WindowUtilityInfo *window, struct Score score)
 {
     sf::Text text(font);
-    text.setString("Placar: " + std::to_string(score.player1) + " - " + std::to_string(score.player2));
+    std::string player1Score = std::to_string(score.player1);
+    std::string player2Score = std::to_string(score.player2);
+    std::string board = "Placar: " + player1Score + " - " + player2Score;
+
     text.setCharacterSize(24);
     text.setFillColor(sf::Color::White);
 
@@ -16,10 +19,24 @@ sf::Text scoreBoard(sf::Font font, struct WindowUtilityInfo *window, struct Scor
     return text;
 }
 
+sf::Font loadFont()
+{
+    sf::Font font;
+    if (!font.openFromFile("src/assets/roboto.ttf"))
+    {
+        std::cout << "Error importing font" << "\n";
+        return font;
+    }
+
+    return font;
+}
+
 int main()
 {
-    sf::RenderWindow window = sf::RenderWindow(sf::VideoMode({800, 500}), "Porongo Pong");
+    sf::VideoMode windowConfig = sf::VideoMode({WINDOW_WIDTH, WINDOW_HEIGHT});
+    sf::RenderWindow window = sf::RenderWindow(windowConfig, "Porongo Pong");
     window.setFramerateLimit(144);
+
     sf::Clock clock;
     float deltatime;
 
@@ -31,13 +48,7 @@ int main()
         .fullWindowY = windowSize.y,
     };
 
-    // todo: move font loading to a specific function
-    sf::Font font;
-    if (!font.openFromFile("src/assets/roboto.ttf"))
-    {
-        std::cout << "Error importing font" << "\n";
-        return 1;
-    }
+    sf::Font font = loadFont();
 
     Ball ball(sf::Color::White, 16.f);
     Player player1(1, 20, "Player 1");
@@ -59,6 +70,7 @@ int main()
             if (const sf::Event::KeyPressed *keyPressed = event->getIf<sf::Event::KeyPressed>())
             {
 
+                // create a event handler class?
                 if (keyPressed->code == sf::Keyboard::Key::W)
                 {
                     player1.handleMoviment(PlayerMoviment::UP);
@@ -82,10 +94,16 @@ int main()
         }
 
         deltatime = clock.restart().asSeconds();
-
         window.clear();
 
-        window.draw(scoreBoard(font, &windowInfo, Score{.player1 = player1.getScore(), .player2 = player2.getScore()}));
+        sf::Text scoreBoard = scoreBoardBuilder(
+            font,
+            &windowInfo,
+            Score{
+                .player1 = player1.getScore(),
+                .player2 = player2.getScore()});
+
+        window.draw(scoreBoard);
 
         ball.move(deltatime);
         ball.handleCollision(&windowInfo, &player1, &player2);
